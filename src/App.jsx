@@ -287,6 +287,10 @@ function LoginScreen({ onLogin }) {
       <div style={{ textAlign:'center', marginBottom:32, marginTop:10 }}>
         <div style={{ fontFamily:"'Cormorant Garamond',serif", fontSize:38, fontWeight:700, color:'#c4b5fd', lineHeight:1 }}>✦ ShepherdCare</div>
         <div style={{ fontFamily:"'DM Sans',sans-serif", fontSize:13, color:'#475569', marginTop:6 }}>Pastoral Care Management · Your Church</div>
+        <a href="/ShepherdCare_Tutorial.html" target="_blank" rel="noreferrer"
+          style={{ display:'inline-flex', alignItems:'center', gap:8, background:'#8b5cf622', border:'1.5px solid #8b5cf655', borderRadius:10, padding:'12px 24px', fontFamily:"'DM Sans',sans-serif", fontSize:14, fontWeight:700, color:'#c4b5fd', textDecoration:'none', letterSpacing:'.04em', marginTop:10 }}>
+          📖 USER GUIDE
+        </a>
         <div style={{ fontFamily:"'DM Sans',sans-serif", fontSize:13, color:'#8b5cf6', marginTop:10, background:'#8b5cf611', border:'1px solid #8b5cf633', borderRadius:30, padding:'6px 16px', display:'inline-block' }}>
           👋 Choose a role below to explore the app
         </div>
@@ -335,13 +339,6 @@ function LoginScreen({ onLogin }) {
             <div style={{ fontFamily:"'DM Sans',sans-serif", fontSize:11, color:'#475569', textTransform:'uppercase', letterSpacing:'.06em' }}>{l}</div>
           </div>
         ))}
-      </div>
-
-      <div style={{ marginTop:24 }}>
-        <a href="/ShepherdCare_Tutorial.html" target="_blank" rel="noreferrer"
-          style={{ display:'inline-flex', alignItems:'center', gap:8, background:'#8b5cf622', border:'1.5px solid #8b5cf655', borderRadius:10, padding:'12px 24px', fontFamily:"'DM Sans',sans-serif", fontSize:14, fontWeight:700, color:'#c4b5fd', textDecoration:'none', letterSpacing:'.04em' }}>
-          📖 USER GUIDE
-        </a>
       </div>
     </div>
     </div>
