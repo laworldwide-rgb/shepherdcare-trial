@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>ShepherdCare · Getting Started Guide</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --ink:      #1a1714;
+      --ink2:     #4a4540;
+      --ink3:     #8a8078;
+      --cream:    #f7f3ed;
+      --warm:     #ede8e0;
+      --gold:     #b8860b;
+      --gold2:    #d4a017;
+      --purple:   #6b46c1;
+      --purple2:  #8b5cf6;
+      --green:    #166534;
+      --red:      #991b1b;
+      --amber:    #92400e;
+      --border:   #ddd6ca;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--cream);
+      color: var(--ink);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ── Header ── */
+    header {
+      background: var(--ink);
+      padding: 48px 24px 40px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    header::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse at 50% 120%, #3b1d8a44 0%, transparent 65%);
+      pointer-events: none;
+    }
+    .header-eyebrow {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: .18em;
+      text-transform: uppercase;
+      color: var(--gold2);
+      margin-bottom: 12px;
+    }
+    .header-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(36px, 6vw, 56px);
+      font-weight: 700;
+      color: #f0ebe2;
+      line-height: 1.1;
+      margin-bottom: 14px;
+    }
+    .header-title span { color: var(--purple2); }
+    .header-sub {
+      font-size: 15px;
+      color: #8a8a9a;
+      max-width: 480px;
+      margin: 0 auto;
+      font-weight: 300;
+    }
+    .header-badge {
+      display: inline-block;
+      margin-top: 20px;
+      background: #ffffff0f;
+      border: 1px solid #ffffff1a;
+      border-radius: 30px;
+      padding: 7px 18px;
+      font-size: 12px;
+      color: #c4b5fd;
+      font-weight: 500;
+    }
+
+    /* ── Nav dots ── */
+    .nav-dots {
+      display: flex;
+      justify-content: center;
+      gap: 6px;
+      padding: 18px 0 0;
+    }
+    .nav-dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: #ffffff18;
+      cursor: pointer;
+      transition: background .2s;
+      border: none;
+    }
+    .nav-dot.active, .nav-dot:hover { background: var(--purple2); }
+
+    /* ── Main layout ── */
+    main {
+      max-width: 740px;
+      margin: 0 auto;
+      padding: 48px 24px 80px;
+    }
+
+    /* ── Intro ── */
+    .intro {
+      text-align: center;
+      margin-bottom: 52px;
+      animation: fadeUp .6s ease both;
+    }
+    .intro-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 28px;
+      color: var(--ink);
+      margin-bottom: 10px;
+      font-weight: 600;
+    }
+    .intro-text {
+      font-size: 15px;
+      color: var(--ink2);
+      max-width: 520px;
+      margin: 0 auto;
+      line-height: 1.75;
+    }
+
+    /* ── Section label ── */
+    .section-label {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: .16em;
+      text-transform: uppercase;
+      color: var(--ink3);
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .section-label::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+
+    /* ── Step cards ── */
+    .steps { display: flex; flex-direction: column; gap: 0; margin-bottom: 52px; }
+
+    .step {
+      display: flex;
+      gap: 20px;
+      padding: 24px 0;
+      border-bottom: 1px solid var(--border);
+      animation: fadeUp .5s ease both;
+      cursor: default;
+    }
+    .step:last-child { border-bottom: none; }
+
+    .step-num {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 38px;
+      font-weight: 700;
+      color: var(--border);
+      line-height: 1;
+      flex-shrink: 0;
+      width: 44px;
+      text-align: right;
+      transition: color .2s;
+      user-select: none;
+    }
+    .step:hover .step-num { color: var(--purple2); }
+
+    .step-body { flex: 1; padding-top: 4px; }
+    .step-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 20px;
+      font-weight: 600;
+      color: var(--ink);
+      margin-bottom: 6px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .step-icon { font-size: 18px; }
+    .step-text {
+      font-size: 14px;
+      color: var(--ink2);
+      line-height: 1.75;
+    }
+    .step-tip {
+      margin-top: 10px;
+      background: var(--warm);
+      border-left: 3px solid var(--gold);
+      border-radius: 0 8px 8px 0;
+      padding: 9px 13px;
+      font-size: 13px;
+      color: var(--amber);
+      font-style: italic;
+    }
+
+    /* ── Features grid ── */
+    .features {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 52px;
+    }
+    .feature-card {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 18px 16px;
+      transition: box-shadow .2s, transform .2s;
+      animation: fadeUp .5s ease both;
+    }
+    .feature-card:hover {
+      box-shadow: 0 4px 20px #0000000d;
+      transform: translateY(-2px);
+    }
+    .feature-icon { font-size: 24px; margin-bottom: 8px; }
+    .feature-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 17px;
+      font-weight: 600;
+      color: var(--ink);
+      margin-bottom: 5px;
+    }
+    .feature-text { font-size: 12.5px; color: var(--ink3); line-height: 1.65; }
+
+    /* ── Roles table ── */
+    .roles { margin-bottom: 52px; }
+    .role-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+      padding: 14px 0;
+      border-bottom: 1px solid var(--border);
+      animation: fadeUp .5s ease both;
+    }
+    .role-row:last-child { border-bottom: none; }
+    .role-dot {
+      width: 10px; height: 10px;
+      border-radius: 50%;
+      flex-shrink: 0;
+      margin-top: 5px;
+    }
+    .role-name {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 17px;
+      font-weight: 600;
+      color: var(--ink);
+      min-width: 150px;
+    }
+    .role-desc { font-size: 13px; color: var(--ink2); line-height: 1.6; }
+
+    /* ── Status pills ── */
+    .status-row {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 52px;
+    }
+    .status-pill {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 30px;
+      padding: 8px 16px;
+    }
+    .status-dot { width:9px; height:9px; border-radius:50%; flex-shrink:0; }
+    .status-label { font-size: 13px; font-weight: 600; }
+    .status-sub { font-size: 12px; color: var(--ink3); }
+
+    /* ── CTA ── */
+    .cta {
+      background: var(--ink);
+      border-radius: 20px;
+      padding: 40px 32px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .cta::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse at 50% 140%, #6b46c133 0%, transparent 60%);
+      pointer-events: none;
+    }
+    .cta-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 28px;
+      color: #f0ebe2;
+      margin-bottom: 10px;
+      font-weight: 600;
+    }
+    .cta-text { font-size: 14px; color: #8a8a9a; margin-bottom: 22px; line-height: 1.7; }
+    .cta-btn {
+      display: inline-block;
+      background: var(--purple2);
+      color: #fff;
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 600;
+      font-size: 14px;
+      padding: 13px 28px;
+      border-radius: 10px;
+      text-decoration: none;
+      transition: opacity .15s;
+    }
+    .cta-btn:hover { opacity: .85; }
+    .cta-note { font-size: 11px; color: #4a4a5a; margin-top: 12px; }
+
+    /* ── Demo note ── */
+    .demo-note {
+      background: #f3f0ff;
+      border: 1px solid #c4b5fd55;
+      border-radius: 12px;
+      padding: 14px 18px;
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+      margin-bottom: 52px;
+      font-size: 13px;
+      color: #4c1d95;
+      line-height: 1.65;
+    }
+    .demo-note-icon { font-size: 18px; flex-shrink: 0; margin-top: 1px; }
+
+    /* ── Animations ── */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(16px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .step:nth-child(1) { animation-delay: .05s; }
+    .step:nth-child(2) { animation-delay: .10s; }
+    .step:nth-child(3) { animation-delay: .15s; }
+    .step:nth-child(4) { animation-delay: .20s; }
+    .step:nth-child(5) { animation-delay: .25s; }
+    .step:nth-child(6) { animation-delay: .30s; }
+    .feature-card:nth-child(1) { animation-delay: .05s; }
+    .feature-card:nth-child(2) { animation-delay: .10s; }
+    .feature-card:nth-child(3) { animation-delay: .15s; }
+    .feature-card:nth-child(4) { animation-delay: .20s; }
+    .feature-card:nth-child(5) { animation-delay: .25s; }
+    .feature-card:nth-child(6) { animation-delay: .30s; }
+
+    /* ── Divider ── */
+    .divider {
+      width: 48px; height: 2px;
+      background: var(--border);
+      margin: 0 auto 48px;
+      border-radius: 2px;
+    }
+
+    /* ── Footer ── */
+    footer {
+      text-align: center;
+      padding: 24px;
+      font-size: 12px;
+      color: var(--ink3);
+      border-top: 1px solid var(--border);
+    }
+
+    @media (max-width: 540px) {
+      .features { grid-template-columns: 1fr; }
+      .role-name { min-width: 120px; }
+      header { padding: 36px 20px 32px; }
+      main { padding: 36px 20px 60px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── Header ── -->
+<header>
+  <div class="header-eyebrow">Trial Guide</div>
+  <h1 class="header-title">✦ Shepherd<span>Care</span></h1>
+  <p class="header-sub">A brief guide to exploring the trial — no experience needed.</p>
+  <div class="header-badge">🎮 This is a demo · All data is sample data</div>
+  <div class="nav-dots">
+    <button class="nav-dot active" onclick="scrollTo(0,0)"></button>
+    <button class="nav-dot" onclick="document.getElementById('start').scrollIntoView({behavior:'smooth'})"></button>
+    <button class="nav-dot" onclick="document.getElementById('features').scrollIntoView({behavior:'smooth'})"></button>
+    <button class="nav-dot" onclick="document.getElementById('roles').scrollIntoView({behavior:'smooth'})"></button>
+  </div>
+</header>
+
+<!-- ── Main ── -->
+<main>
+
+  <!-- Intro -->
+  <div class="intro" id="start">
+    <h2 class="intro-title">Welcome to ShepherdCare</h2>
+    <p class="intro-text">
+      ShepherdCare helps your pastoral team stay connected to the people in your congregation — tracking care visits, prayer requests, important milestones, and follow-up tasks, all in one place.
+      <br><br>
+      This guide walks you through the trial in just a few minutes.
+    </p>
+  </div>
+
+  <!-- Demo note -->
+  <div class="demo-note">
+    <div class="demo-note-icon">💡</div>
+    <div>
+      <strong>About this trial:</strong> Everything you see is sample data for a fictional church. You can click, explore, add notes, create tasks, and change statuses freely — nothing is saved permanently and nothing will affect a real church. Refresh the page at any time to start fresh.
+    </div>
+  </div>
+
+  <!-- Steps -->
+  <div class="section-label" id="features">Getting Started</div>
+  <div class="steps">
+
+    <div class="step">
+      <div class="step-num">1</div>
+      <div class="step-body">
+        <div class="step-title"><span class="step-icon">👤</span> Choose a Role to Sign In As</div>
+        <p class="step-text">
+          On the opening screen you'll see six staff members to sign in as. Each one has a different role — from Senior Pastor to Volunteer — and each role sees a different version of the app. Start with <strong>Pastor David Mercer</strong> (Senior Pastor) to see everything, then try a Volunteer to see how limited access works.
+        </p>
+        <div class="step-tip">💡 You can switch roles anytime by clicking your avatar in the top-right corner.</div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">2</div>
+      <div class="step-body">
+        <div class="step-title"><span class="step-icon">⌂</span> Explore the Dashboard</div>
+        <p class="step-text">
+          After signing in, you'll land on the Dashboard. This is your home base — it shows a quick summary of who needs attention, your open tasks, upcoming birthdays and anniversaries, and recent care activity. Click any stat card at the top to jump straight to that group of members.
+        </p>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">3</div>
+      <div class="step-body">
+        <div class="step-title"><span class="step-icon">✦</span> Browse the Congregation</div>
+        <p class="step-text">
+          Tap <strong>People</strong> in the navigation to see all congregation members. Filter by group (Seniors, Youth, Bereaved, etc.), by status, or use the <strong>⛪ Members Only</strong> and <strong>👋 Visitors Only</strong> options to separate regulars from first-time visitors. Tap any member to open their full profile — contact info, family details, care notes, and tasks are all there.
+        </p>
+        <div class="step-tip">💡 Use the sort dropdown to arrange members A→Z by last name or by newest added.</div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">4</div>
+      <div class="step-body">
+        <div class="step-title"><span class="step-icon">📝</span> Add and Read Care Notes</div>
+        <p class="step-text">
+          Open any member's profile and tap the <strong>purple pencil button</strong> (✎) in the bottom-right corner to add a note. Choose a type — Visit, Hospital, Call, Prayer, and more — write what happened, and save. You can mark a note as private so only senior staff can see it. To read a full note, just tap it — it opens in a detail view. If you wrote the note, you'll see an ✏️ edit button to update it.
+        </p>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">5</div>
+      <div class="step-body">
+        <div class="step-title"><span class="step-icon">◻</span> Create and Complete Tasks</div>
+        <p class="step-text">
+          Go to <strong>Tasks</strong> in the navigation. Tasks are follow-up actions assigned to team members — things like "Follow up after hospital visit" or "Arrange transport for Sunday." Tap the checkbox on any task to mark it complete. Tap the <strong>+</strong> button to create a new one. You can assign a task to a specific person, leave it as <em>To Be Assigned</em>, or assign it to <strong>👥 All Team Members</strong> so everyone sees it.
+        </p>
+        <div class="step-tip">💡 Tasks are color-coded by priority — red is Urgent, yellow is High, blue is Medium.</div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">6</div>
+      <div class="step-body">
+        <div class="step-title"><span class="step-icon">🔍</span> Search Anything</div>
+        <p class="step-text">
+          Tap the <strong>🔍 search icon</strong> in the top-right at any time to search across members and care notes instantly. Try searching a name, a group like "Seniors," a word from a note like "hospital," or even a <strong>child's name</strong> — the app will surface the parent's profile.
+        </p>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- Features -->
+  <div class="section-label">What's Inside</div>
+  <div class="features" id="features-grid">
+
+    <div class="feature-card">
+      <div class="feature-icon">👥</div>
+      <div class="feature-title">Member Profiles</div>
+      <p class="feature-text">Full contact info, family details, spouse linking, children, groups, and care history. Members and visitors are tracked separately.</p>
+    </div>
+
+    <div class="feature-card">
+      <div class="feature-icon">📋</div>
+      <div class="feature-title">Care Notes</div>
+      <p class="feature-text">Log visits, calls, hospital trips, prayer requests, and more. Tap any note to read it in full. Authors can edit their own notes. Private notes are visible only to senior staff.</p>
+    </div>
+
+    <div class="feature-card">
+      <div class="feature-icon">✅</div>
+      <div class="feature-title">Task Management</div>
+      <p class="feature-text">Assign follow-up tasks to a specific person, leave them unassigned, or send them to all team members at once with priority levels and due dates.</p>
+    </div>
+
+    <div class="feature-card">
+      <div class="feature-icon">🎂</div>
+      <div class="feature-title">Milestones</div>
+      <p class="feature-text">Never miss a birthday or anniversary. The app tracks upcoming dates and alerts you 30 days ahead.</p>
+    </div>
+
+    <div class="feature-card">
+      <div class="feature-icon">📊</div>
+      <div class="feature-title">Reports</div>
+      <p class="feature-text">See congregation health at a glance — who's active, who needs care, and how each staff member is doing.</p>
+    </div>
+
+    <div class="feature-card">
+      <div class="feature-icon">◈</div>
+      <div class="feature-title">Activity Feed</div>
+      <p class="feature-text">A chronological timeline of all care interactions across your entire pastoral team.</p>
+    </div>
+
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- Member Status -->
+  <div class="section-label">Member Status Colors</div>
+  <div class="status-row" style="margin-bottom:16px;">
+    <div class="status-pill">
+      <div class="status-dot" style="background:#10b981;"></div>
+      <div>
+        <div class="status-label" style="color:#166534;">Active</div>
+        <div class="status-sub">No immediate care needed</div>
+      </div>
+    </div>
+    <div class="status-pill">
+      <div class="status-dot" style="background:#f59e0b;"></div>
+      <div>
+        <div class="status-label" style="color:#92400e;">Needs Care</div>
+        <div class="status-sub">Requires follow-up attention</div>
+      </div>
+    </div>
+    <div class="status-pill">
+      <div class="status-dot" style="background:#ef4444;"></div>
+      <div>
+        <div class="status-label" style="color:#991b1b;">Critical</div>
+        <div class="status-sub">Urgent pastoral care needed</div>
+      </div>
+    </div>
+  </div>
+  <p style="font-size:13px;color:var(--ink3);margin-bottom:52px;">Any staff member with edit permissions can update a member's status directly from their profile.</p>
+
+  <!-- Roles -->
+  <div class="section-label" id="roles">Staff Roles & Access</div>
+  <div class="roles">
+
+    <div class="role-row">
+      <div class="role-dot" style="background:#6366f1;"></div>
+      <div class="role-name">Senior Pastor</div>
+      <div class="role-desc">Full access — sees all members, all private notes, manages the team, and views all reports.</div>
+    </div>
+    <div class="role-row">
+      <div class="role-dot" style="background:#3b82f6;"></div>
+      <div class="role-name">Co-Pastor</div>
+      <div class="role-desc">Broad access — all members, care notes, and reports. Cannot manage team accounts.</div>
+    </div>
+    <div class="role-row">
+      <div class="role-dot" style="background:#10b981;"></div>
+      <div class="role-name">Care Pastor</div>
+      <div class="role-desc">All members and care notes. Cannot view private notes written by others.</div>
+    </div>
+    <div class="role-row">
+      <div class="role-dot" style="background:#f59e0b;"></div>
+      <div class="role-name">Elder</div>
+      <div class="role-desc">Sees only their assigned members. Can add care notes and prayer entries.</div>
+    </div>
+    <div class="role-row">
+      <div class="role-dot" style="background:#ec4899;"></div>
+      <div class="role-name">Youth Minister</div>
+      <div class="role-desc">Assigned members only. Can edit profiles and add care notes for their group.</div>
+    </div>
+    <div class="role-row">
+      <div class="role-dot" style="background:#94a3b8;"></div>
+      <div class="role-name">Volunteer</div>
+      <div class="role-desc">Most limited — sees only assigned members and can add basic care notes.</div>
+    </div>
+
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- CTA -->
+  <div class="cta">
+    <div class="cta-title">Ready for the real thing?</div>
+    <p class="cta-text">
+      ShepherdCare can be set up for your church with your real team, your congregation, and your data — fully branded with your church name.
+    </p>
+    <a href="mailto:laworldwide@gmail.com?subject=ShepherdCare%20Inquiry" class="cta-btn">Get in Touch →</a>
+    <div class="cta-note">Custom setup · Your branding · Real data · Full support</div>
+  </div>
+
+</main>
