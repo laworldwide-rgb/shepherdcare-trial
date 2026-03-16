@@ -1272,6 +1272,9 @@ export default function ShepherdCareDemo() {
             <div className="nav-item" onClick={()=>setShowAdmin(true)}><span style={{ fontSize:13 }}>⚙</span> Team Mgmt</div>
           </>}
         </nav>
+        <a href="/ShepherdCare_Tutorial.html" target="_blank" rel="noreferrer" className="sc-btn sc-btn-secondary" style={{ width:'100%', marginBottom:8, justifyContent:'flex-start', padding:'10px 13px', gap:8, textDecoration:'none', display:'flex', alignItems:'center' }}>
+          <span>?</span><span style={{ fontSize:13, color:'#c4b5fd', fontWeight:600 }}>Getting Started Guide</span>
+        </a>
         <button onClick={()=>setShowSearch(true)} className="sc-btn sc-btn-secondary" style={{ width:'100%', marginBottom:10, justifyContent:'flex-start', padding:'10px 13px', gap:8 }}>
           <span>🔍</span><span style={{ fontSize:13, color:'#64748b' }}>Search…</span>
           <span style={{ marginLeft:'auto', fontFamily:"'DM Sans',sans-serif", fontSize:11, color:'#334155' }}>⌘K</span>
@@ -1299,6 +1302,10 @@ export default function ShepherdCareDemo() {
             : <div style={{ fontFamily:"'Cormorant Garamond',serif", fontSize:20, fontWeight:700, color:'#c4b5fd' }}>✦</div>
           }
           <div style={{ fontFamily:"'Cormorant Garamond',serif", fontSize:18, fontWeight:600, color:'#e8e4d9', flex:1 }}>{cfg.title}</div>
+          <a href="/ShepherdCare_Tutorial.html" target="_blank" rel="noreferrer"
+            style={{ background:'#8b5cf622', border:'1px solid #8b5cf644', borderRadius:8, padding:'5px 10px', fontFamily:"'DM Sans',sans-serif", fontSize:12, fontWeight:600, color:'#c4b5fd', textDecoration:'none', whiteSpace:'nowrap', display:'flex', alignItems:'center', gap:4 }}>
+            ? Guide
+          </a>
           <button onClick={()=>setShowSearch(true)} style={{ background:'none', border:'none', cursor:'pointer', padding:'8px', color:'#94a3b8', fontSize:20, lineHeight:1, display:'flex', alignItems:'center' }}>🔍</button>
           {perms.canManageTeam && <button onClick={()=>setShowAdmin(true)} style={{ background:'none', border:'none', cursor:'pointer', padding:'8px', color:'#94a3b8', fontSize:18, lineHeight:1, display:'flex', alignItems:'center' }}>⚙</button>}
           <div className="avatar" style={{ width:32, height:32, fontSize:11, background:authUser.color+'33', color:authUser.color, cursor:'pointer' }} onClick={handleSignOut} title="Switch role">{authUser.avatar}</div>
