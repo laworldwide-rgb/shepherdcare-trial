@@ -206,9 +206,9 @@ const CSS = `
     letter-spacing:.03em;}
 
   .app-header{position:sticky;top:0;z-index:40;background:#0a0c12;
-    border-bottom:1px solid #141620;padding:0 16px;
+    border-bottom:1px solid #141620;padding:0 12px;
     padding-top:env(safe-area-inset-top,0px);
-    display:flex;align-items:center;gap:10px;height:56px;}
+    display:flex;align-items:center;gap:6px;height:56px;}
 
   .stat-card{background:#171b26;border:1px solid #1e2336;border-radius:12px;
     padding:14px 12px;text-align:center;cursor:pointer;transition:transform .15s,border-color .15s;}
@@ -335,6 +335,13 @@ function LoginScreen({ onLogin }) {
             <div style={{ fontFamily:"'DM Sans',sans-serif", fontSize:11, color:'#475569', textTransform:'uppercase', letterSpacing:'.06em' }}>{l}</div>
           </div>
         ))}
+      </div>
+
+      <div style={{ marginTop:24 }}>
+        <a href="/ShepherdCare_Tutorial.html" target="_blank" rel="noreferrer"
+          style={{ display:'inline-flex', alignItems:'center', gap:8, background:'#8b5cf622', border:'1.5px solid #8b5cf655', borderRadius:10, padding:'12px 24px', fontFamily:"'DM Sans',sans-serif", fontSize:14, fontWeight:700, color:'#c4b5fd', textDecoration:'none', letterSpacing:'.04em' }}>
+          📖 USER GUIDE
+        </a>
       </div>
     </div>
     </div>
@@ -1273,7 +1280,7 @@ export default function ShepherdCareDemo() {
           </>}
         </nav>
         <a href="/ShepherdCare_Tutorial.html" target="_blank" rel="noreferrer" className="sc-btn sc-btn-secondary" style={{ width:'100%', marginBottom:8, justifyContent:'flex-start', padding:'10px 13px', gap:8, textDecoration:'none', display:'flex', alignItems:'center' }}>
-          <span>?</span><span style={{ fontSize:13, color:'#c4b5fd', fontWeight:600 }}>Getting Started Guide</span>
+          <span>📖</span><span style={{ fontSize:13, color:'#c4b5fd', fontWeight:700 }}>USER GUIDE</span>
         </a>
         <button onClick={()=>setShowSearch(true)} className="sc-btn sc-btn-secondary" style={{ width:'100%', marginBottom:10, justifyContent:'flex-start', padding:'10px 13px', gap:8 }}>
           <span>🔍</span><span style={{ fontSize:13, color:'#64748b' }}>Search…</span>
@@ -1303,8 +1310,8 @@ export default function ShepherdCareDemo() {
           }
           <div style={{ fontFamily:"'Cormorant Garamond',serif", fontSize:18, fontWeight:600, color:'#e8e4d9', flex:1 }}>{cfg.title}</div>
           <a href="/ShepherdCare_Tutorial.html" target="_blank" rel="noreferrer"
-            style={{ background:'#8b5cf622', border:'1px solid #8b5cf644', borderRadius:8, padding:'5px 10px', fontFamily:"'DM Sans',sans-serif", fontSize:12, fontWeight:600, color:'#c4b5fd', textDecoration:'none', whiteSpace:'nowrap', display:'flex', alignItems:'center', gap:4 }}>
-            ? Guide
+            style={{ background:'#8b5cf622', border:'1.5px solid #8b5cf655', borderRadius:8, padding:'7px 14px', fontFamily:"'DM Sans',sans-serif", fontSize:13, fontWeight:700, color:'#c4b5fd', textDecoration:'none', whiteSpace:'nowrap', display:'flex', alignItems:'center', gap:5, flexShrink:0, letterSpacing:'.03em' }}>
+            📖 USER GUIDE
           </a>
           <button onClick={()=>setShowSearch(true)} style={{ background:'none', border:'none', cursor:'pointer', padding:'8px', color:'#94a3b8', fontSize:20, lineHeight:1, display:'flex', alignItems:'center' }}>🔍</button>
           {perms.canManageTeam && <button onClick={()=>setShowAdmin(true)} style={{ background:'none', border:'none', cursor:'pointer', padding:'8px', color:'#94a3b8', fontSize:18, lineHeight:1, display:'flex', alignItems:'center' }}>⚙</button>}
