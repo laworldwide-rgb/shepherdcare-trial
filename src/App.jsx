@@ -37,6 +37,13 @@ const ALL_GROUPS = ['General','Seniors','Youth','Young Adults','Bereaved','Hospi
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 const fmt      = d => d ? new Date(d).toLocaleDateString('en-US',{ month:'short', day:'numeric', year:'numeric' }) : '—';
+const fmtMD = d => {
+  if (!d) return '—';
+  const parts = d.split('-');
+  const mo = parts.length === 3 ? parseInt(parts[1]) : parseInt(parts[0]);
+  const dy = parts.length === 3 ? parseInt(parts[2]) : parseInt(parts[1]);
+  return new Date(2000, mo-1, dy).toLocaleDateString('en-US',{ month:'short', day:'numeric' });
+};
 const fmtShort = d => d ? new Date(d).toLocaleDateString('en-US',{ month:'short', day:'numeric' }) : '';
 const fmtTime  = d => d ? new Date(d).toLocaleTimeString('en-US',{ hour:'numeric', minute:'2-digit' }) : '';
 const uid      = () => Math.random().toString(36).slice(2,10);
@@ -347,7 +354,8 @@ function SearchOverlay({ members, notes, onSelect, onClose }) {
     m.name.toLowerCase().includes(q2) ||
     (m.email||'').toLowerCase().includes(q2) ||
     (m.phone||'').includes(q2) ||
-    m.groups.some(g => g.toLowerCase().includes(q2))
+    m.groups.some(g => g.toLowerCase().includes(q2)) ||
+    (m.children||[]).some(c=>(c.name||'').toLowerCase().includes(q2))
   ).slice(0, 6) : [];
 
   const nRes = q2.length > 1 ? notes.filter(n =>
@@ -377,7 +385,14 @@ function SearchOverlay({ members, notes, onSelect, onClose }) {
                 </div>
                 <div style={{ flex:1, minWidth:0 }}>
                   <div style={{ fontFamily:"'DM Sans',sans-serif", fontSize:14, fontWeight:600, color:'#e8e4d9' }}>{m.name}</div>
-                  <div style={{ fontFamily:"'DM Sans',sans-serif", fontSize:11, color:'#64748b', marginTop:1 }}>{m.groups.join(' · ')}</div>
+                  <div style={{ fontFamily:"'DM Sans',sans-serif", fontSize:11, color:'#64748b', marginTop:1 }}>
+                    {m.groups.join(' · ')}
+                    {(m.children||[]).some(c=>(c.name||'').toLowerCase().includes(q2)) &&
+                      <span style={{ color:'#a78bfa', marginLeft: m.groups.length ? 6 : 0 }}>
+                        · 👶 {(m.children||[]).find(c=>(c.name||'').toLowerCase().includes(q2))?.name}
+                      </span>
+                    }
+                  </div>
                 </div>
                 <span className="sc-tag" style={{ background:s.color+'22', color:s.color, fontSize:10 }}>{s.label}</span>
               </div>
@@ -545,6 +560,8 @@ export default function ShepherdCareDemo() {
   const [toast,      setToast]      = useState(null);
 
   const [noteF, setNoteF] = useState({ type:'visit', content:'', isPrivate:false });
+  const [editNote,  setEditNote]  = useState(null); // { id, type, content, isPrivate }
+  const [selNote,   setSelNote]   = useState(null); // note open in detail modal
   const [taskF, setTaskF] = useState({ title:'', due:'', assignedTo:'', priority:'medium' });
   const [mbrF,  setMbrF]  = useState({ name:'', phone:'', email:'', birthday:'', anniversary:'', address:'', groups:[], assignedTo:'', status:'active', gender:'', maritalStatus:'single', spouseName:'', spouseId:null, hasChildren:false, children:[], memberType:'member' });
 
@@ -574,7 +591,15 @@ export default function ShepherdCareDemo() {
     : members.filter(m => m.assignedTo === authUser.id);
   const canSeeNote = n => !n.private || n.authorId === authUser.id || perms.canViewAllPrivate;
 
-  const getLastName = name => name.trim().split(' ').slice(-1)[0].toLowerCase();
+  const SUFFIXES = new Set(['jr','jr.','sr','sr.','ii','iii','iv','v',
+    'md','phd','dds','esq','rn','dd','dr','ret','emeritus']);
+  const getLastName = name => {
+    const parts = name.trim().split(/\s+/);
+    for (let i = parts.length - 1; i >= 0; i--) {
+      if (!SUFFIXES.has(parts[i].toLowerCase())) return parts[i].toLowerCase();
+    }
+    return parts[0].toLowerCase();
+  };
 
   const filteredM = visibleM.filter(m => {
     const mg = fGroup==='All' || (fGroup==='__visitor' ? m.memberType==='visitor' : fGroup==='__member' ? m.memberType!=='visitor' : m.groups.includes(fGroup));
@@ -623,6 +648,16 @@ export default function ShepherdCareDemo() {
     showToast('Care note saved ✓');
   };
 
+  const doEditNote = () => {
+    if (!editNote?.content.trim()) return;
+    setNotes(p => p.map(n => n.id === editNote.id
+      ? { ...n, type: editNote.type, content: editNote.content, private: editNote.isPrivate }
+      : n
+    ));
+    setEditNote(null);
+    showToast('Care note updated ✓');
+  };
+
   const doAddTask = () => {
     if (!taskF.title.trim()) return;
     const assignee = team.find(l => l.id === (taskF.assignedTo || authUser.id));
@@ -661,6 +696,12 @@ export default function ShepherdCareDemo() {
     setSelMember(updated);
     setEditMember(null);
     showToast(`${mbrF.name} updated ✓`);
+  };
+
+  const toMD = d => {
+    if (!d) return '';
+    const parts = d.split('-');
+    return parts.length === 3 ? `${parts[1]}-${parts[2]}` : d;
   };
 
   const openEditMbr = (member) => {
@@ -774,7 +815,7 @@ export default function ShepherdCareDemo() {
               <div style={{ fontFamily:"'DM Sans',sans-serif", fontSize:13.5, fontWeight:500, color:'#e8e4d9' }}>{t.title}</div>
               {t.memberName && <div style={{ fontFamily:"'DM Sans',sans-serif", fontSize:11, color:'#64748b', marginTop:2 }}>re: {t.memberName}</div>}
             </div>
-            <div style={{ fontFamily:"'DM Sans',sans-serif", fontSize:11, color:'#64748b', whiteSpace:'nowrap' }}>{t.due}</div>
+            <div style={{ fontFamily:"'DM Sans',sans-serif", fontSize:11, color:'#64748b', whiteSpace:'nowrap' }}>{t.due || 'TBD'}</div>
           </div>
         ))}
         {tasks.filter(t => !t.done && t.assignedTo === authUser.id).length === 0 && (
@@ -977,7 +1018,7 @@ export default function ShepherdCareDemo() {
                   </div>
                   <div style={{ flex:1, minWidth:0 }}>
                     <div style={{ fontFamily:"'DM Sans',sans-serif", fontSize:13, color:t.done?'#475569':'#e8e4d9', textDecoration:t.done?'line-through':'none' }}>{t.title}</div>
-                    <div style={{ fontFamily:"'DM Sans',sans-serif", fontSize:11, color:'#64748b', marginTop:2 }}>→ {a?.name} · {t.due}</div>
+                    <div style={{ fontFamily:"'DM Sans',sans-serif", fontSize:11, color:'#64748b', marginTop:2 }}>→ {a?.name} · {t.due || 'TBD'}</div>
                   </div>
                   <span className="sc-tag" style={{ background:PRI_COLOR[t.priority]+'22', color:PRI_COLOR[t.priority], fontSize:10, flexShrink:0 }}>{t.priority}</span>
                 </div>
@@ -999,20 +1040,37 @@ export default function ShepherdCareDemo() {
             </div>
           )}
           {mNotes.length === 0 && <div style={{ fontFamily:"'DM Sans',sans-serif", fontSize:13, color:'#475569', padding:'16px 0' }}>No care notes yet.</div>}
-          {mNotes.map(n => (
-            <div key={n.id} className="note-card" style={{ borderLeftColor:n.private?'#f59e0b':'#8b5cf6' }}>
+          {mNotes.map(n=>{
+            const canEditNote = n.authorId === authUser.id;
+            return (
+            <div key={n.id} className="note-card"
+              style={{ borderLeftColor:n.private?'#f59e0b':'#8b5cf6', cursor:'pointer', transition:'background .15s' }}
+              onClick={()=>setSelNote(n)}
+              onMouseEnter={e=>e.currentTarget.style.background='#161926'}
+              onMouseLeave={e=>e.currentTarget.style.background=''}
+            >
               <div style={{ display:'flex', justifyContent:'space-between', marginBottom:7, flexWrap:'wrap', gap:5 }}>
                 <div style={{ display:'flex', gap:6, alignItems:'center' }}>
                   <span style={{ fontSize:16 }}>{NOTE_ICONS[n.type]}</span>
-                  <span className="sc-tag" style={{ background:'#1e2336', color:'#94a3b8' }}>{n.type}</span>
-                  {n.private && <span className="sc-tag" style={{ background:'#f59e0b22', color:'#f59e0b' }}>🔒</span>}
+                  <span className="sc-tag" style={{ background:'#1e2336',color:'#94a3b8' }}>{n.type}</span>
+                  {n.private && <span className="sc-tag" style={{ background:'#f59e0b22',color:'#f59e0b' }}>🔒</span>}
                 </div>
-                <div style={{ fontFamily:"'DM Sans',sans-serif", fontSize:11, color:'#475569' }}>{fmtShort(n.date)} · {fmtTime(n.date)}</div>
+                <div style={{ display:'flex', alignItems:'center', gap:8 }}>
+                  <div style={{ fontFamily:"'DM Sans',sans-serif", fontSize:11, color:'#475569' }}>{fmtShort(n.date)} · {fmtTime(n.date)}</div>
+                  {canEditNote && <button onClick={e=>{e.stopPropagation();setEditNote({id:n.id,type:n.type,content:n.content,isPrivate:n.private});}} style={{ background:'none',border:'none',cursor:'pointer',fontSize:13,color:'#64748b',padding:'0 2px' }}>✏️</button>}
+                </div>
               </div>
-              <div style={{ fontFamily:"'DM Sans',sans-serif", fontSize:13.5, lineHeight:1.7, color:'#cbd5e1' }}>{n.content}</div>
-              <div style={{ fontFamily:"'DM Sans',sans-serif", fontSize:11, color:'#475569', marginTop:8 }}>— {n.authorName} · {n.authorRole}</div>
+              <div style={{ fontFamily:"'DM Sans',sans-serif", fontSize:13.5, lineHeight:1.7, color:'#cbd5e1',
+                overflow:'hidden', display:'-webkit-box', WebkitLineClamp:3, WebkitBoxOrient:'vertical' }}>
+                {n.content}
+              </div>
+              <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginTop:8 }}>
+                <div style={{ fontFamily:"'DM Sans',sans-serif", fontSize:11, color:'#475569' }}>— {n.authorName} · {n.authorRole}</div>
+                <div style={{ fontFamily:"'DM Sans',sans-serif", fontSize:10, color:'#334155' }}>Tap to read</div>
+              </div>
             </div>
-          ))}
+            );
+          })}
         </div>
       </div>
     );
@@ -1035,8 +1093,16 @@ export default function ShepherdCareDemo() {
                 <span style={{ fontFamily:"'DM Sans',sans-serif", fontSize:13, fontWeight:600, color:'#c4b5fd', cursor:'pointer' }} onClick={()=>m&&openM(m)}>{m?.name}</span>
                 {n.private && <span className="sc-tag" style={{ background:'#f59e0b22', color:'#f59e0b', fontSize:10 }}>🔒</span>}
               </div>
-              <div className="note-card" style={{ marginBottom:5 }}>
-                <div style={{ fontFamily:"'DM Sans',sans-serif", fontSize:13, lineHeight:1.65, color:'#cbd5e1' }}>{n.content}</div>
+              <div className="note-card" onClick={()=>setSelNote(n)}
+                style={{ marginBottom:5, cursor:'pointer', transition:'background .15s' }}
+                onMouseEnter={e=>e.currentTarget.style.background='#161926'}
+                onMouseLeave={e=>e.currentTarget.style.background=''}
+              >
+                <div style={{ fontFamily:"'DM Sans',sans-serif", fontSize:13, lineHeight:1.65, color:'#cbd5e1',
+                  overflow:'hidden', display:'-webkit-box', WebkitLineClamp:3, WebkitBoxOrient:'vertical' }}>
+                  {n.content}
+                </div>
+                <div style={{ fontFamily:"'DM Sans',sans-serif", fontSize:10, color:'#334155', marginTop:6 }}>Tap to read</div>
               </div>
               <div style={{ fontFamily:"'DM Sans',sans-serif", fontSize:11, color:'#475569' }}>{fmt(n.date)} at {fmtTime(n.date)}</div>
             </div>
@@ -1063,7 +1129,7 @@ export default function ShepherdCareDemo() {
                 <div style={{ flex:1, minWidth:0 }}>
                   <div style={{ fontFamily:"'DM Sans',sans-serif", fontSize:13.5, fontWeight:500, color:'#e8e4d9' }}>{t.title}</div>
                   {t.memberName && <div style={{ fontFamily:"'DM Sans',sans-serif", fontSize:11, color:'#64748b', marginTop:2 }}>re: {t.memberName}</div>}
-                  <div style={{ fontFamily:"'DM Sans',sans-serif", fontSize:11, color:'#64748b', marginTop:1 }}>→ {t.assigneeName} · Due {t.due}</div>
+                  <div style={{ fontFamily:"'DM Sans',sans-serif", fontSize:11, color:'#64748b', marginTop:1 }}>→ {t.assignedTo==='all'?'👥 All Team Members':t.assigneeName} · Due {t.due || 'TBD'}</div>
                 </div>
               </div>
             ))}
@@ -1320,7 +1386,7 @@ export default function ShepherdCareDemo() {
             </div>
             {[
               {l:'Description', el:<input className="sc-input" placeholder="e.g. Follow-up call after hospital visit" value={taskF.title} onChange={e=>setTaskF({...taskF,title:e.target.value})} />},
-              {l:'Due Date',    el:<input className="sc-input" type="date" value={taskF.due} onChange={e=>setTaskF({...taskF,due:e.target.value})} />},
+              {l:'Due Date',    el:<div style={{ position:'relative' }}><input className="sc-input" style={{ paddingRight: taskF.due ? 40 : 12 }} type="date" value={taskF.due} onChange={e=>setTaskF({...taskF,due:e.target.value})} />{taskF.due && <button onClick={()=>setTaskF({...taskF,due:''})} style={{ position:'absolute', right:10, top:'50%', transform:'translateY(-50%)', background:'none', border:'none', cursor:'pointer', color:'#64748b', fontSize:16, lineHeight:1, padding:2 }}>✕</button>}</div>},
               {l:'Assign To',  el:<select className="sc-input" value={taskF.assignedTo} onChange={e=>setTaskF({...taskF,assignedTo:e.target.value})}>{team.filter(l=>l.status==='active').map(l=><option key={l.id} value={l.id}>{l.name}</option>)}</select>},
               {l:'Priority',   el:<select className="sc-input" value={taskF.priority} onChange={e=>setTaskF({...taskF,priority:e.target.value})}>{['urgent','high','medium','low'].map(p=><option key={p} value={p}>{p.charAt(0).toUpperCase()+p.slice(1)}</option>)}</select>},
             ].map(f => (
@@ -1354,6 +1420,51 @@ export default function ShepherdCareDemo() {
                 <input className="sc-input" style={{ marginTop:5 }} type={f.t} placeholder={f.p} value={mbrF[f.k]} onChange={e=>setMbrF({...mbrF,[f.k]:e.target.value})} />
               </div>
             ))}
+
+            {/* Birthday & Anniversary - Month + Day only */}
+            {[{l:'Birthday',k:'birthday'},{l:'Anniversary',k:'anniversary'}].map(f=>{
+              const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+              const val = mbrF[f.k] || '';
+              const saved = val.match(/^(\d{2})-(\d{2})$/);
+              const mm = saved ? saved[1] : '';
+              const dd = saved ? saved[2] : '';
+              const daysInMonth = mm ? new Date(2000, parseInt(mm), 0).getDate() : 31;
+              return (
+                <div key={f.k} style={{ marginBottom:11 }}>
+                  <label className="lbl">{f.l}</label>
+                  <div style={{ display:'flex', gap:8, marginTop:5, alignItems:'center' }}>
+                    <select className="sc-input" style={{ flex:2 }} value={mm}
+                      onChange={e=>{
+                        const newMm = e.target.value;
+                        setMbrF({...mbrF, [f.k]: newMm ? (dd ? `${newMm}-${dd}` : `${newMm}-01`) : ''});
+                      }}>
+                      <option value="">Month</option>
+                      {MONTHS.map((m,i)=><option key={i} value={String(i+1).padStart(2,'0')}>{m}</option>)}
+                    </select>
+                    <select className="sc-input" style={{ flex:1 }} value={dd}
+                      onChange={e=>setMbrF({...mbrF, [f.k]: mm ? `${mm}-${e.target.value}` : ''})}
+                      disabled={!mm}>
+                      <option value="">Day</option>
+                      {Array.from({length:daysInMonth},(_,i)=><option key={i+1} value={String(i+1).padStart(2,'0')}>{i+1}</option>)}
+                    </select>
+                    {val && (
+                      <button onClick={()=>setMbrF({...mbrF,[f.k]:''})}
+                        style={{ background:'none', border:'none', cursor:'pointer', color:'#64748b', fontSize:16, lineHeight:1, padding:'0 4px', flexShrink:0 }}>✕</button>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+
+            {/* Member Type */}
+            <div style={{ marginBottom:11 }}>
+              <label className="lbl">Member Type</label>
+              <select className="sc-input" style={{ marginTop:5 }} value={mbrF.memberType} onChange={e=>setMbrF({...mbrF, memberType:e.target.value})}>
+                <option value="member">Member</option>
+                <option value="visitor">Visitor</option>
+              </select>
+            </div>
+
             <div style={{ marginBottom:11 }}>
               <label className="lbl">Gender</label>
               <select className="sc-input" style={{ marginTop:5 }} value={mbrF.gender} onChange={e=>setMbrF({...mbrF,gender:e.target.value})}>
@@ -1470,6 +1581,79 @@ export default function ShepherdCareDemo() {
       )}
 
       {/* Delete confirm */}
+      {/* ── Note Detail Modal ── */}
+      {selNote && (() => {
+        const n = selNote;
+        const canEditNote = n.authorId === authUser.id;
+        return (
+          <div className="modal-overlay" onClick={()=>setSelNote(null)}>
+            <div className="modal-sheet" onClick={e=>e.stopPropagation()} style={{ maxWidth:520, maxHeight:'90vh', display:'flex', flexDirection:'column' }}>
+              <div className="modal-handle" />
+              <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-start', marginBottom:16, flexShrink:0 }}>
+                <div style={{ display:'flex', gap:8, alignItems:'center', flexWrap:'wrap' }}>
+                  <span style={{ fontSize:20 }}>{NOTE_ICONS[n.type]}</span>
+                  <span className="sc-tag" style={{ background:'#1e2336', color:'#94a3b8', fontSize:13 }}>{n.type}</span>
+                  {n.private && <span className="sc-tag" style={{ background:'#f59e0b22', color:'#f59e0b' }}>🔒 Private</span>}
+                </div>
+                <div style={{ display:'flex', alignItems:'center', gap:8 }}>
+                  {canEditNote && (
+                    <button onClick={()=>{ setSelNote(null); setEditNote({ id:n.id, type:n.type, content:n.content, isPrivate:n.private }); }}
+                      style={{ background:'none', border:'none', cursor:'pointer', fontSize:15, color:'#64748b', padding:'2px 6px' }}>✏️</button>
+                  )}
+                  <button onClick={()=>setSelNote(null)} style={{ background:'none', border:'none', cursor:'pointer', fontSize:20, color:'#64748b', lineHeight:1 }}>✕</button>
+                </div>
+              </div>
+              <div style={{ overflowY:'auto', flex:1, paddingRight:4 }}>
+                <div style={{ fontFamily:"'DM Sans',sans-serif", fontSize:12, color:'#475569', marginBottom:14 }}>
+                  {fmtShort(n.date)} · {fmtTime(n.date)}
+                </div>
+                <div style={{ fontFamily:"'DM Sans',sans-serif", fontSize:15, lineHeight:1.8, color:'#e2e8f0', marginBottom:16, background:'#0d1117', borderRadius:10, padding:'14px 16px' }}>
+                  {n.content}
+                </div>
+                <div style={{ display:'flex', alignItems:'center', gap:10, marginBottom:20, padding:'10px 14px', background:'#131722', borderRadius:10 }}>
+                  <div className="avatar" style={{ width:34, height:34, fontSize:11, background:n.authorColor+'22', color:n.authorColor }}>{n.authorAvatar}</div>
+                  <div>
+                    <div style={{ fontFamily:"'DM Sans',sans-serif", fontSize:13, fontWeight:700, color:'#e8e4d9' }}>{n.authorName}</div>
+                    <div style={{ fontFamily:"'DM Sans',sans-serif", fontSize:11, color:n.authorColor }}>{n.authorRole}</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        );
+      })()}
+
+      {/* ── Edit Note Modal ── */}
+      {editNote && (
+        <div className="modal-overlay" onClick={()=>setEditNote(null)}>
+          <div className="modal-sheet" onClick={e=>e.stopPropagation()}>
+            <div className="modal-handle" />
+            <div style={{ fontFamily:"'Cormorant Garamond',serif", fontSize:22, color:'#e8e4d9', marginBottom:16 }}>Edit Care Note</div>
+            <div style={{ marginBottom:14 }}>
+              <label className="lbl">Type</label>
+              <div style={{ display:'flex', gap:7, flexWrap:'wrap', marginTop:7 }}>
+                {Object.entries(NOTE_ICONS).map(([t,i])=>(
+                  <button key={t} onClick={()=>setEditNote({...editNote,type:t})} className="sc-btn"
+                    style={{ padding:'8px 13px',fontSize:13,background:editNote.type===t?'#8b5cf622':'#1a1e2e',border:`1.5px solid ${editNote.type===t?'#8b5cf6':'#2a2d3a'}`,color:editNote.type===t?'#c4b5fd':'#64748b' }}>{i} {t}</button>
+                ))}
+              </div>
+            </div>
+            <div style={{ marginBottom:14 }}>
+              <label className="lbl">Note</label>
+              <textarea className="sc-input" style={{ marginTop:6,minHeight:120 }} value={editNote.content} onChange={e=>setEditNote({...editNote,content:e.target.value})} />
+            </div>
+            <label style={{ display:'flex',alignItems:'center',gap:10,marginBottom:18,cursor:'pointer' }}>
+              <input type="checkbox" checked={editNote.isPrivate} onChange={e=>setEditNote({...editNote,isPrivate:e.target.checked})} style={{ width:18,height:18,accentColor:'#8b5cf6' }} />
+              <span style={{ fontFamily:"'DM Sans',sans-serif", fontSize:13, color:'#94a3b8' }}>🔒 Private</span>
+            </label>
+            <div style={{ display:'flex', gap:10 }}>
+              <button onClick={doEditNote} className="sc-btn sc-btn-primary" style={{ flex:1 }}>💾 Save Changes</button>
+              <button onClick={()=>setEditNote(null)} className="sc-btn sc-btn-secondary" style={{ padding:'13px 18px' }}>Cancel</button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {confirmDelete && (
         <div className="modal-overlay" onClick={()=>setConfirmDelete(null)}>
           <div className="modal-sheet" onClick={e=>e.stopPropagation()} style={{ maxWidth:420 }}>
